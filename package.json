@@ -1,0 +1,20 @@
+{
+  "name": "ata-tutor-portal",
+  "version": "1.0.0",
+  "description": "Apex Tuition Australia tutor check-in portal",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "setup-sheets": "node src/scripts/setup-sheets.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.3.1",
+    "googleapis": "^140.0.1",
+    "nodemailer": "^8.0.3"
+  }
+}
