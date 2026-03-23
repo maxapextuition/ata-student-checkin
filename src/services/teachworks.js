@@ -15,6 +15,9 @@ export async function validateEmployeeEmail(email) {
     return { isValid: true, employee: { id: 0, email, first_name: 'Dev', last_name: 'User' } };
   }
 
+  const key = process.env.TEACHWORKS_API_KEY || '';
+  console.log(`Teachworks key preview: "${key.slice(0, 6)}..." length=${key.length}`);
+
   const res = await fetch(`${API_BASE}/v1/employees?email=${encodeURIComponent(email)}`, {
     headers: authHeaders(),
   });
