@@ -8,73 +8,75 @@ function getAuth() {
   });
 }
 
-const TAB_NAMES = {
-  1: 'Option 1 - Organising Session',
-  2: 'Option 2 - Discussing Options',
-  3: 'Option 3 - No Response',
-  4: 'Option 4 - Not Needed Now',
-  5: 'Option 5 - No Longer Tutoring',
-  6: 'Option 6 - Not Yet Contacted',
-  7: 'Option 7 - Other',
+const OPTION_LABELS = {
+  1: 'Organising a session',
+  2: 'Discussing options',
+  3: 'No response from family',
+  4: 'Not needed right now',
+  5: 'No longer tutoring',
+  6: 'Not yet contacted',
+  7: 'Other',
 };
 
-// Build the row for each option. First 5 cols are always the same.
+// Columns: Timestamp | Tutor Name | Tutor ID | Student Name | Student ID |
+//          Option | Option Label |
+//          1 - Estimated Session Date |
+//          1 - Needs Help | 1 - Help Details |
+//          2 - Date Contacted | 2 - Last Heard From |
+//          2 - Needs Help | 2 - Help Details |
+//          3 - Date Contacted |
+//          3 - Needs Help | 3 - Help Details |
+//          4 - Estimated Restart Date | 4 - Re-contact By |
+//          5 - Context |
+//          6 - Still Wants to Tutor |
+//          7 - Context
 function buildRow(option, base, answers) {
   const { timestamp, tutorName, tutorId, studentName, studentId } = base;
-  const common = [timestamp, tutorName, tutorId, studentName, studentId];
 
-  switch (option) {
-    case 1:
-      return [...common,
-        answers.estimatedSessionDate || '',
-        answers.needsHelp ? 'Yes' : 'No',
-        answers.helpDetails || '',
-      ];
-    case 2:
-      return [...common,
-        answers.dateContacted || '',
-        answers.lastHeardFrom || '',
-        answers.needsHelp ? 'Yes' : 'No',
-        answers.helpDetails || '',
-      ];
-    case 3:
-      return [...common,
-        answers.dateContacted || '',
-        answers.needsHelp ? 'Yes' : 'No',
-        answers.helpDetails || '',
-      ];
-    case 4:
-      return [...common,
-        answers.estimatedRestartDate || '',
-        answers.recontactBy || '',
-      ];
-    case 5:
-      return [...common,
-        answers.context || '',
-      ];
-    case 6:
-      return [...common,
-        answers.stillWantsToTutor ? 'Yes' : 'No',
-      ];
-    case 7:
-      return [...common,
-        answers.context || '',
-      ];
-    default:
-      return common;
-  }
+  const needsHelp  = answers.needsHelp  || '';
+  const helpDetails = answers.helpDetails || '';
+
+  return [
+    timestamp,
+    tutorName,
+    tutorId,
+    studentName,
+    studentId,
+    option,
+    OPTION_LABELS[option] || '',
+    // Option 1
+    option === 1 ? (answers.estimatedSessionDate || '') : '',
+    option === 1 ? needsHelp   : '',
+    option === 1 ? helpDetails : '',
+    // Option 2
+    option === 2 ? (answers.dateContacted  || '') : '',
+    option === 2 ? (answers.lastHeardFrom  || '') : '',
+    option === 2 ? needsHelp   : '',
+    option === 2 ? helpDetails : '',
+    // Option 3
+    option === 3 ? (answers.dateContacted  || '') : '',
+    option === 3 ? needsHelp   : '',
+    option === 3 ? helpDetails : '',
+    // Option 4
+    option === 4 ? (answers.estimatedRestartDate || '') : '',
+    option === 4 ? (answers.recontactBy          || '') : '',
+    // Option 5
+    option === 5 ? (answers.context || '') : '',
+    // Option 6
+    option === 6 ? (answers.stillWantsToTutor || '') : '',
+    // Option 7
+    option === 7 ? (answers.context || '') : '',
+  ];
 }
 
 export async function saveCheckIn({ option, tutorName, tutorId, studentName, studentId, answers }) {
-  const tabName = TAB_NAMES[option];
-  if (!tabName) throw new Error(`Invalid option: ${option}`);
+  if (!OPTION_LABELS[option]) throw new Error(`Invalid option: ${option}`);
 
   const timestamp = new Date().toLocaleString('en-AU', { timeZone: 'Australia/Sydney' });
   const row = buildRow(option, { timestamp, tutorName, tutorId, studentName, studentId }, answers);
 
   if (!process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
-    // Dev mode — just log
-    console.log(`[DEV] Check-in saved to "${tabName}":`, row);
+    console.log('[DEV] Check-in row:', row);
     return;
   }
 
@@ -83,7 +85,7 @@ export async function saveCheckIn({ option, tutorName, tutorId, studentName, stu
 
   await sheets.spreadsheets.values.append({
     spreadsheetId: process.env.CHECKINS_SHEET_ID,
-    range: `'${tabName}'!A:Z`,
+    range: `'responses'!A:W`,
     valueInputOption: 'USER_ENTERED',
     requestBody: { values: [row] },
   });
