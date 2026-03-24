@@ -1,28 +1,15 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-function createTransport() {
-  return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD,
-    },
-  });
-}
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendMagicLinkEmail(toEmail, magicLink) {
-  const transport = createTransport();
-
-  await transport.sendMail({
-    from: `"Apex Tuition Australia" <${process.env.GMAIL_USER}>`,
+  await resend.emails.send({
+    from: 'Apex Tuition Australia <noreply@apextuitionaustralia.com>',
     to: toEmail,
-    subject: 'Your login link — ATA Tutor Portal',
-    text: `Click this link to log in (expires in 15 minutes):\n\n${magicLink}\n\nIf you didn't request this, you can ignore this email.`,
+    subject: 'Your login link — ATA Student Check-in',
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-        <h2 style="color: #1a1a1a;">Log in to ATA Tutor Portal</h2>
+        <h2 style="color: #1a1a1a;">Log in to ATA Student Check-in</h2>
         <p>Click the button below to log in. This link expires in <strong>15 minutes</strong>.</p>
         <a href="${magicLink}" style="
           display: inline-block;
