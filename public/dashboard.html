@@ -178,24 +178,11 @@
 
   // Track submitted students this session
   const submittedIds = new Set();
+  let allStudents = [];
 
   window.markStudentSubmitted = function(studentId) {
     submittedIds.add(String(studentId));
-    // Update the card visually without a full re-render
-    const card = document.querySelector(`.student-card[data-id="${studentId}"]`);
-    if (card) {
-      card.className = 'student-card submitted';
-      card.style.cursor = 'default';
-      card.replaceWith(card.cloneNode(true)); // remove click handler
-      const newCard = document.querySelector(`.student-card[data-id="${studentId}"]`);
-      if (newCard) {
-        newCard.querySelector('.card-icon').textContent = '✓';
-        newCard.querySelector('.status-badge').className = 'status-badge purple';
-        newCard.querySelector('.status-badge').textContent = 'Update provided';
-        const cta = newCard.querySelector('.card-cta');
-        if (cta) cta.remove();
-      }
-    }
+    render(allStudents);
   };
 
   function getState(s) {
@@ -312,7 +299,8 @@
       const res = await fetch('/api/students');
       if (res.status === 401) { location.href = '/'; return; }
       if (!res.ok) throw new Error(await res.text());
-      render(await res.json());
+      allStudents = await res.json();
+      render(allStudents);
     } catch (err) {
       document.getElementById('studentList').innerHTML =
         `<div class="state-msg">Failed to load students: ${err.message}</div>`;
