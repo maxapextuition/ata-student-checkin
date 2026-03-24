@@ -1,7 +1,9 @@
 import { google } from 'googleapis';
 
 function getAuth() {
-  const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+  const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON || '';
+  console.log('GOOGLE JSON first 15 chars:', JSON.stringify(raw.slice(0, 15)));
+  const credentials = JSON.parse(raw);
   return new google.auth.GoogleAuth({
     credentials,
     scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
