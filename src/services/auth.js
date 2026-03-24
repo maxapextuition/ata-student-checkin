@@ -45,7 +45,9 @@ export async function requestMagicLink(email) {
 }
 
 export async function verifyMagicLink(token) {
+  console.log('verifyMagicLink called, token prefix:', token.slice(0, 10));
   const record = storage.getMagicToken(token);
+  console.log('record found:', record);
 
   if (!record || record.used) {
     throw new Error('Invalid or already-used login link.');
@@ -64,6 +66,7 @@ export async function verifyMagicLink(token) {
   const sessionToken = crypto.randomBytes(32).toString('hex');
   const expiresAt = new Date(Date.now() + SESSION_EXPIRY_MS);
   storage.saveSession(sessionToken, user.id, record.email, expiresAt, employee?.id);
+  console.log('Session saved, token prefix:', sessionToken.slice(0, 10));
 
   return { sessionToken, email: record.email, employeeId: employee?.id };
 }

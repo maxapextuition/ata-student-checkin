@@ -23,6 +23,7 @@ export const storage = {
   // Magic link tokens
   saveMagicToken(token, email, expiresAt) {
     magicTokens.set(token, { email, expiresAt, used: false });
+    console.log('Token saved, prefix:', token.slice(0, 10), 'map size:', magicTokens.size);
   },
   getMagicToken(token) {
     return magicTokens.get(token) || null;

@@ -28,9 +28,11 @@ export async function validateEmployeeEmail(email) {
   }
 
   const data = await res.json();
+  console.log('Teachworks response:', JSON.stringify(data).slice(0, 500));
   const employee = data.find(
-    e => e.email.toLowerCase() === email.toLowerCase() && e.status === 'active'
+    e => e.email.toLowerCase() === email.toLowerCase() && e.status.toLowerCase() === 'active'
   );
+  console.log('Matched employee:', employee ? `${employee.email} status=${employee.status}` : 'none');
 
   return employee ? { isValid: true, employee } : { isValid: false };
 }

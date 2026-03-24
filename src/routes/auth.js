@@ -21,20 +21,21 @@ router.post('/magic-link', async (req, res) => {
 });
 
 // GET /verify?token=...  — clicked from email, sets cookie, redirects to dashboard
-router.get('/verify', async (req, res) => {
+router.get('/', async (req, res) => {
   const { token } = req.query;
 
   if (!token || typeof token !== 'string') {
     return res.redirect('/?error=invalid_link');
   }
 
+  console.log('Verify attempt, token prefix:', token.slice(0, 10));
   try {
     const { sessionToken } = await verifyMagicLink(token);
 
     res.cookie('session_token', sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000,
     });
 

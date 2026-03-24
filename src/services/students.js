@@ -55,7 +55,7 @@ export async function getStudentsForTutor(tutorId) {
 
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId: process.env.STUDENTS_SHEET_ID,
-    range: 'Sheet1!A:I',
+    range: 'master_list!A:I',
   });
 
   const rows = response.data.values || [];
