@@ -50,6 +50,8 @@ export async function getStudentsForTutor(tutorId) {
     ];
   }
 
+  const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON || '';
+  console.log('JSON first 10 chars:', JSON.stringify(raw.slice(0, 10)));
   const auth = getAuth();
   const sheets = google.sheets({ version: 'v4', auth });
 
