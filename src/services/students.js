@@ -57,14 +57,33 @@ export async function getStudentsForTutor(tutorId) {
   const auth = getAuth();
   const sheets = google.sheets({ version: 'v4', auth });
 
-  const response = await sheets.spreadsheets.values.get({
-    spreadsheetId: process.env.STUDENTS_SHEET_ID,
-    range: 'master_list!A:I',
-  });
+  // Load students and responses in parallel
+  const [studentsRes, responsesRes] = await Promise.all([
+    sheets.spreadsheets.values.get({
+      spreadsheetId: process.env.STUDENTS_SHEET_ID,
+      range: 'master_list!A:I',
+    }),
+    sheets.spreadsheets.values.get({
+      spreadsheetId: process.env.CHECKINS_SHEET_ID,
+      range: 'responses!A:F',
+    }).catch(() => ({ data: { values: [] } })),
+  ]);
 
-  const rows = response.data.values || [];
+  // Build set of studentIds already submitted by this tutor
+  // responses columns: A=Timestamp, B=TutorName, C=TutorId, D=StudentName, E=StudentId
+  const submittedStudentIds = new Set(
+    (responsesRes.data.values || [])
+      .slice(1)
+      .filter(row =>
+        String(row[2] || '').trim() === String(tutorId).trim() &&
+        String(row[4] || '').trim() !== ''
+      )
+      .map(row => String(row[4] || '').trim())
+  );
+
+  const rows = studentsRes.data.values || [];
   return rows
-    .slice(1) // skip header
+    .slice(1)
     .filter(row => String(row[0] || '').trim() === String(tutorId).trim())
     .map(row => ({
       studentId:        row[2] || '',
@@ -74,5 +93,6 @@ export async function getStudentsForTutor(tutorId) {
       sessionStatus:    row[6] || '',
       lastSessionDate:  row[7] || '',
       lastSessionNotes: row[8] || '',
+      alreadySubmitted: submittedStudentIds.has(String(row[2] || '').trim()),
     }));
 }

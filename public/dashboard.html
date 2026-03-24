@@ -186,7 +186,7 @@
   };
 
   function getState(s) {
-    if (submittedIds.has(String(s.studentId))) return 'submitted';
+    if (s.alreadySubmitted || submittedIds.has(String(s.studentId))) return 'submitted';
     if (s.sessionDate && s.sessionStatus === 'Attended')  return 'attended';
     if (s.sessionDate && s.sessionStatus === 'Scheduled') return 'scheduled';
     return 'needs-action';
