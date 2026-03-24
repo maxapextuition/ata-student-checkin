@@ -20,6 +20,14 @@ dotenv.config({ path: path.join(projectRoot, '.env') });
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Force HTTPS in production
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV === 'production' && req.headers['x-forwarded-proto'] !== 'https') {
+    return res.redirect(301, `https://${req.headers.host}${req.url}`);
+  }
+  next();
+});
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
