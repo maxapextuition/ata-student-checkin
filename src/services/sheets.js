@@ -83,9 +83,16 @@ export async function saveCheckIn({ option, tutorName, tutorId, studentName, stu
   const auth = getAuth();
   const sheets = google.sheets({ version: 'v4', auth });
 
-  await sheets.spreadsheets.values.append({
+  // Find first empty row in column A to avoid formula rows at the bottom
+  const colA = await sheets.spreadsheets.values.get({
     spreadsheetId: process.env.CHECKINS_SHEET_ID,
-    range: `'responses'!A:W`,
+    range: `'responses'!A:A`,
+  });
+  const nextRow = (colA.data.values || []).length + 1;
+
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: process.env.CHECKINS_SHEET_ID,
+    range: `'responses'!A${nextRow}`,
     valueInputOption: 'USER_ENTERED',
     requestBody: { values: [row] },
   });
