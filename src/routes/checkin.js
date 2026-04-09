@@ -18,6 +18,8 @@ router.post('/', requireAuth, async (req, res) => {
     return res.status(400).json({ error: 'option must be 1–7' });
   }
 
+  console.log(`Check-in attempt: student=${studentName} (${studentId}), option=${optNum}, tutor=${req.session.email}`);
+
   try {
     // Get tutor's full name from Teachworks (or fall back to email)
     let tutorName = req.session.email;
