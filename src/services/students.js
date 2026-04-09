@@ -1,9 +1,7 @@
 import { google } from 'googleapis';
 
 function getAuth() {
-  const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON || '';
-  console.log('GOOGLE JSON first 15 chars:', JSON.stringify(raw.slice(0, 15)));
-  const credentials = JSON.parse(raw);
+  const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
   return new google.auth.GoogleAuth({
     credentials,
     scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
@@ -52,8 +50,6 @@ export async function getStudentsForTutor(tutorId) {
     ];
   }
 
-  const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON || '';
-  console.log('JSON first 10 chars:', JSON.stringify(raw.slice(0, 10)));
   const auth = getAuth();
   const sheets = google.sheets({ version: 'v4', auth });
 
